@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using dotnet_rpg.Services.CharacterService;
 using System.Threading.Tasks;
+using dotnet_rpg.Dtos.Character;
 
 namespace dotnet_rpg.Controllers
 {
@@ -40,7 +41,7 @@ namespace dotnet_rpg.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCharacter(Character newCharacter)
+        public async Task<IActionResult> AddCharacter(AddCharacterDto newCharacter)
         {
             return Ok(await _characterService.AddCharacter(newCharacter)); 
         }
