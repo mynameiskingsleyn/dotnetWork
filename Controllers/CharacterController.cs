@@ -45,5 +45,24 @@ namespace dotnet_rpg.Controllers
         {
             return Ok(await _characterService.AddCharacter(newCharacter)); 
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateCharacter(UpdateCharacterDto updateCharacter)
+        {
+            ServiceResponse<GetCharacterDto> response = await _characterService.UpdateCharacter(updateCharacter);
+            if (response.Data == null){
+                return NotFound(response);
+            }
+            return Ok(response); 
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            ServiceResponse<List<GetCharacterDto>> response = await _characterService.DeleteCharacter(id);
+            if(response.Success == false){
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
     }
 }
