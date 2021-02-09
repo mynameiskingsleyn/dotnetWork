@@ -34,6 +34,7 @@ namespace dotnet_rpg
             services.AddControllers();
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ICharacterService, CharacterService>();
+            services.AddScoped<IAuthRepository,AuthRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "dotnet_rpg", Version = "v1" });
