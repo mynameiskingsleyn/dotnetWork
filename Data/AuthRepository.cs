@@ -1,7 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using dotnet_rpg.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace dotnet_rpg.Data
 {
@@ -85,7 +91,23 @@ namespace dotnet_rpg.Data
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username)
             };
-            return string.Empty;
+
+            SymmetricSecurityKey key =new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value)
+            );
+
+            SigningCredentials creds = new SigningCredentials(key,SecurityAlgorithms.HmacSha512Signature);
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+            //return string.Empty;
+            return tokenHandler.WriteToken(token);
         }
     }
 }

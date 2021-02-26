@@ -15,6 +15,9 @@ using Microsoft.OpenApi.Models;
 using AutoMapper;
 using dotnet_rpg.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace dotnet_rpg
 {
@@ -35,6 +38,19 @@ namespace dotnet_rpg
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<ICharacterService, CharacterService>();
             services.AddScoped<IAuthRepository,AuthRepository>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters 
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                        .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                }
+            );
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "dotnet_rpg", Version = "v1" });
@@ -54,6 +70,8 @@ namespace dotnet_rpg
             //app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

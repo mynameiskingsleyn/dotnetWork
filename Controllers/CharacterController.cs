@@ -7,9 +7,12 @@ using System;
 using dotnet_rpg.Services.CharacterService;
 using System.Threading.Tasks;
 using dotnet_rpg.Dtos.Character;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace dotnet_rpg.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class CharacterController: ControllerBase
@@ -24,13 +27,30 @@ namespace dotnet_rpg.Controllers
             _characterService = characterService;
         }
 
+        //[AllowAnonymous]
         [HttpGet("GetAll")]
         public async Task<IActionResult> Get()
         {
-            var Message= $"Character visited at {DateTime.UtcNow.ToLongTimeString()}";
-            _logger.LogInformation(Message);
-             //Console.WriteLine(knight);
-             return Ok(await _characterService.GetAllCharacters());
+            ServiceResponse<List<GetCharacterDto>> response = null;
+            
+            try{
+                var user = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                int id =1;
+                if(user != null){
+                    id = int.Parse(user);
+                }
+                Console.WriteLine("user id is "+id);
+                var Message= $"Character visited at {DateTime.UtcNow.ToLongTimeString()}";
+               // _logger.LogInformation(Message);
+                Console.WriteLine(Message);
+                 response = await _characterService.GetAllCharacters(id);
+                 return Ok(response);
+            }catch(Exception ex){
+               // response.Message = ex.Message;
+               Console.WriteLine(ex.Message);
+                return BadRequest(response);
+            }
+           
         }
 
         // [Route("GetOne")]
